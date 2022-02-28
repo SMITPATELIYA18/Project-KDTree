@@ -1,6 +1,4 @@
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -8,7 +6,11 @@ public class KDTree {
 
     private Nodes rootNode;
 
+    public static Map<Integer,Integer> deletedRecords ;
+
     public void insert(int ageValue, int salaryValue) {
+        if(deletedRecords!=null && deletedRecords.containsKey(ageValue) && deletedRecords.get(ageValue)==salaryValue)
+            return;
         if (rootNode == null) {
             Node temp = new Node(Constants.Salary, salaryValue, 1);
             LeafNode tempLeafNode = new LeafNode(ageValue, salaryValue,2);
@@ -75,6 +77,55 @@ public class KDTree {
         newNode.left = newLeafNodeLeft;
         newNode.right = newLeafNodeRight;
         return newNode;
+    }
+
+
+    public Map<Integer,Integer> delete(int ageValue, int salaryValue)
+    {
+        deletedRecords=new HashMap<>();
+        deleteValue(rootNode, ageValue, salaryValue);
+        if(deletedRecords==null || deletedRecords.size()==0)
+            System.out.println("NOT FOUND\n");
+        return deletedRecords;
+    }
+
+    private void deleteValue(Nodes node, int ageValue, int salaryValue) {
+
+        if (rootNode == null) {
+            return ;
+        }
+
+        Node tempNode = (Node) node;
+        int compareValue = tempNode.getName() == Constants.Age ? ageValue : salaryValue;
+        if(tempNode.getValue()<=compareValue) {
+            if (tempNode.right.getClass() == LeafNode.class) {
+                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.right);
+                checkValueForDeletion(leafNodeToCheck, ageValue,salaryValue);
+                return;
+            }
+            deleteValue(tempNode.right, ageValue, salaryValue);
+        } else {
+            if (tempNode.left.getClass() == LeafNode.class) {
+                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.left);
+                checkValueForDeletion(leafNodeToCheck, ageValue,salaryValue);
+                return;
+            }
+            deleteValue(tempNode.left, ageValue, salaryValue);
+        }
+
+    }
+
+    public void checkValueForDeletion(LeafNode node, int ageValue, int salaryValue)
+    {
+        //Ashwin
+        Map<Age, Integer> records = node.getRecords();
+        for (Map.Entry<Age, Integer> ageIntegerEntry : records.entrySet()) {
+            if(ageIntegerEntry.getKey().getAge()==ageValue && ageIntegerEntry.getValue()==salaryValue) {
+                System.out.println("Found and deleted\n");
+                deletedRecords.put(ageValue,salaryValue);
+                return;
+            }
+        }
     }
 
     public Nodes getRootNode() {
