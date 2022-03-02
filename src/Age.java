@@ -2,7 +2,10 @@ import java.util.Comparator;
 
 public class Age implements Comparator<Age> {
     private int age;
-    Age() {}
+
+    Age() {
+    }
+
     Age(int age) {
         this.age = age;
     }
@@ -19,9 +22,9 @@ public class Age implements Comparator<Age> {
 
     @Override
     public int compare(Age o1, Age o2) {
-        if(o1.age < o2.age) {
+        if (o1.age < o2.age) {
             return 1;
-        } else if(o1.age == o2.age) {
+        } else if (o1.age == o2.age) {
             return 0;
         } else {
             return -1;

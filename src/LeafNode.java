@@ -6,11 +6,11 @@ public class LeafNode extends Nodes {
     //Ashwin
 //    private Record record = new Record();
 
-    private Map<Age,Integer> records = new LinkedHashMap<>(2);
+    private Map<Age, Integer> records = new LinkedHashMap<>(2);
 
-    LeafNode(int ageValue,int salaryValue,int toPrint) {
-        records.put(new Age(ageValue),salaryValue);
-        this.toPrint= toPrint;
+    LeafNode(int ageValue, int salaryValue, int toPrint) {
+        records.put(new Age(ageValue), salaryValue);
+        this.toPrint = toPrint;
 
         //Ashwin
 //        this.record.records.put(new Age(ageValue),salaryValue);
@@ -29,12 +29,12 @@ public class LeafNode extends Nodes {
     }
 
     void add(int ageValue, int salaryValue) {
-        records.put(new Age(ageValue),salaryValue);
+        records.put(new Age(ageValue), salaryValue);
         //Ashwin
 //        this.record.records.put(new Age(ageValue),salaryValue);
     }
 
-    public Map<Age,Integer> getRecords() {
+    public Map<Age, Integer> getRecords() {
         //Ashwin
 //        return this.record.getRecords();
         return records;
@@ -48,9 +48,9 @@ public class LeafNode extends Nodes {
 //                "\n"+getSpacesToDisplay(0)+"}";
 
         //Ashwin
-        return "\n"+getSpacesToDisplay(0)+"LeafNode{" +
-                "\n"+getSpacesToDisplay(1)+"Records:" + records+
-                "\n"+getSpacesToDisplay(0)+"}";
+        return "\n" + getSpacesToDisplay(0) + "LeafNode{" +
+                "\n" + getSpacesToDisplay(1) + "Records:" + records +
+                "\n" + getSpacesToDisplay(0) + "}";
     }
 
     public int getToPrint() {
