@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 
 public class KDTree {
 
-    public static Map<Integer, Integer> deletedRecords;
+    public static Map<Integer, Integer> deletedRecords = new HashMap<>();
     private Nodes rootNode;
 
     public void insert(int ageValue, int salaryValue) {
@@ -81,7 +81,7 @@ public class KDTree {
 
 
     public Map<Integer, Integer> delete(int ageValue, int salaryValue) {
-        deletedRecords = new HashMap<>();
+//        deletedRecords = new HashMap<>();
         deleteValue(rootNode, ageValue, salaryValue);
         if (deletedRecords == null || deletedRecords.size() == 0)
             System.out.println("NOT FOUND\n");
