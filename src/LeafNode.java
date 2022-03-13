@@ -7,8 +7,8 @@ public class LeafNode extends Nodes {
 
     private Map<Age, Integer> records = new LinkedHashMap<>(2);
 
-    LeafNode(int ageValue, int salaryValue, int toPrint) {
-        records.put(new Age(ageValue), salaryValue);
+    LeafNode(Age ageValue, int salaryValue, int toPrint) {
+        records.put(ageValue, salaryValue);
         this.toPrint = toPrint;
 
     }
@@ -23,8 +23,8 @@ public class LeafNode extends Nodes {
 
     }
 
-    void add(int ageValue, int salaryValue) {
-        records.put(new Age(ageValue), salaryValue);
+    void add(Age ageValue, int salaryValue) {
+        records.put(ageValue, salaryValue);
     }
 
     public Map<Age, Integer> getRecords() {
@@ -35,19 +35,40 @@ public class LeafNode extends Nodes {
     @Override
     public String toString() {
 
-        Map<Age, Integer> recordsToDisplay = this.records;
-        Map<Integer, Integer> deletedRecords = KDTree.deletedRecords;
-
-            for (Map.Entry<Integer, Integer> deletedAgeIntegerEntry : deletedRecords.entrySet()) {
-                for (Map.Entry<Age, Integer> recordToDisplayAgeIntegerEntry : recordsToDisplay.entrySet()) {
-                    if (recordToDisplayAgeIntegerEntry.getKey().getAge() == deletedAgeIntegerEntry.getKey())
-                        recordsToDisplay.remove(recordToDisplayAgeIntegerEntry.getKey());
+        Map<Age, Integer> recordsToDisplay = new HashMap<>();
+        Map<Age, Integer> deletedRecords = KDTree.deletedRecords;
+        if(!deletedRecords.isEmpty()) {
+            for (Map.Entry<Age, Integer> deletedAgeIntegerEntry : this.records.entrySet()) {
+                if(!deletedRecords.containsKey(deletedAgeIntegerEntry.getKey())) {
+                    recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
                 }
+//                for (Map.Entry<Age, Integer> recordToDisplayAgeIntegerEntry : deletedRecords.entrySet()) {
+//                    if(recordToDisplayAgeIntegerEntry.getKey().getAge() != deletedAgeIntegerEntry.getKey().getAge()) {
+//                    } else {
+//                        System.out.println(deletedAgeIntegerEntry.getKey()+" "+recordToDisplayAgeIntegerEntry.getKey());
+//                        System.out.println(deletedAgeIntegerEntry.getKey().hashCode() + " "+ recordToDisplayAgeIntegerEntry.getKey().hashCode());
+//                        if(recordToDisplayAgeIntegerEntry.getValue() != deletedAgeIntegerEntry.getValue()) {
+//                            recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
+//                        }
+//                    }
+//
+//                    //10,60
+//                    //30,60
+//                    //30,70
+//
+//                    //30,60
+////                if (recordToDisplayAgeIntegerEntry.getKey().getAge() != deletedAgeIntegerEntry.getKey().getAge() && deletedAgeIntegerEntry.getValue() != recordToDisplayAgeIntegerEntry.getValue())
+////                    //recordsToDisplay.remove(recordToDisplayAgeIntegerEntry.getKey());
+////                    recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
+//                }
             }
+        } else {
+            recordsToDisplay = new HashMap<>(this.records);
+        }
 
-                return "\n" + getSpacesToDisplay(0) + "LeafNode{" +
-                        "\n" + getSpacesToDisplay(1) + "Records:" + recordsToDisplay +
-                        "\n" + getSpacesToDisplay(0) + "}";
+        return "\n" + getSpacesToDisplay(0) + "LeafNode{" +
+                "\n" + getSpacesToDisplay(1) + "Records:" + recordsToDisplay +
+                "\n" + getSpacesToDisplay(0) + "}";
 
 
     }

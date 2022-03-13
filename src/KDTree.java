@@ -4,25 +4,28 @@ import java.util.stream.Collectors;
 
 public class KDTree {
 
-    public static Map<Integer, Integer> deletedRecords = new HashMap<>();
+    public static Map<Age, Integer> deletedRecords = new HashMap<>();
     private Nodes rootNode;
 
     public void insert(int ageValue, int salaryValue) {
-        if (deletedRecords != null && deletedRecords.containsKey(ageValue) && deletedRecords.get(ageValue) == salaryValue)
-            return;
+//        if (deletedRecords != null && deletedRecords.containsKey(ageValue) && deletedRecords.get(ageValue) == salaryValue)
+//            return;
+        Age tempAge = new Age(ageValue);
+        Main.values.put(tempAge,salaryValue);
         if (rootNode == null) {
             Node temp = new Node(Constants.Salary, salaryValue, 1);
-            LeafNode tempLeafNode = new LeafNode(ageValue, salaryValue, 3);
+            LeafNode tempLeafNode = new LeafNode(tempAge, salaryValue, 3);
             temp.setRight(tempLeafNode);
             rootNode = temp;
+            //Main.values.putAll(tempLeafNode.getRecords());
             return;
         }
-        insertNodes(rootNode, ageValue, salaryValue);
+        insertNodes(rootNode, tempAge, salaryValue);
     }
 
-    private void insertNodes(Nodes node, int ageValue, int salaryValue) {
+    private void insertNodes(Nodes node, Age ageValue, int salaryValue) {
         Node tempNode = (Node) node;
-        int compareValue = tempNode.getName() == Constants.Age ? ageValue : salaryValue;
+        int compareValue = tempNode.getName() == Constants.Age ? ageValue.getAge() : salaryValue;
         Constants nextConstants = tempNode.getName() == Constants.Age ? Constants.Salary : Constants.Age;
         if (tempNode.getValue() <= compareValue) {
             if (tempNode.right.getClass() == LeafNode.class) {
@@ -41,14 +44,17 @@ public class KDTree {
         }
     }
 
-    private Nodes updateLeafNode(LeafNode node, int ageValue, int salaryValue, Constants constants) {
+    private Nodes updateLeafNode(LeafNode node, Age ageValue, int salaryValue, Constants constants) {
         Map<Age, Integer> records = node.getRecords();
         if (records.size() < 2) {
             LeafNode newNode = new LeafNode(node);
             newNode.add(ageValue, salaryValue);
+            //Main.values.putAll(newNode.getRecords());
             return newNode;
         }
-        records.put(new Age(ageValue), salaryValue);
+        records.put(ageValue, salaryValue);
+
+        //Main.values.putAll(records);
 //        Comparator<Map.Entry<Age,Integer>> comparator = constants == Constants.Age ? Map.Entry.comparingByKey(new
 //        Age()) :
 //                Map.Entry.comparingByValue();
@@ -69,9 +75,9 @@ public class KDTree {
         for (Map.Entry<Age, Integer> entry : records.entrySet()) {
             int entryAnswer = constants == Constants.Age ? entry.getKey().getAge() : entry.getValue();
             if (entryAnswer < medianAnswer) {
-                newLeafNodeLeft.add(entry.getKey().getAge(), entry.getValue());
+                newLeafNodeLeft.add(entry.getKey(), entry.getValue());
             } else {
-                newLeafNodeRight.add(entry.getKey().getAge(), entry.getValue());
+                newLeafNodeRight.add(entry.getKey(), entry.getValue());
             }
         }
         newNode.left = newLeafNodeLeft;
@@ -80,7 +86,7 @@ public class KDTree {
     }
 
 
-    public Map<Integer, Integer> delete(int ageValue, int salaryValue) {
+    public Map<Age, Integer> delete(int ageValue, int salaryValue) {
 //        deletedRecords = new HashMap<>();
         deleteValue(rootNode, ageValue, salaryValue);
         if (deletedRecords == null || deletedRecords.size() == 0)
@@ -116,11 +122,11 @@ public class KDTree {
 
     public void checkValueForDeletion(LeafNode node, int ageValue, int salaryValue) {
         //Ashwin
-        Map<Age, Integer> records = node.getRecords();
-        for (Map.Entry<Age, Integer> ageIntegerEntry : records.entrySet()) {
+        //Map<Age, Integer> records = node.getRecords();
+        for (Map.Entry<Age, Integer> ageIntegerEntry : node.getRecords().entrySet()) {
             if (ageIntegerEntry.getKey().getAge() == ageValue && ageIntegerEntry.getValue() == salaryValue) {
                 System.out.println("Found and deleted\n");
-                deletedRecords.put(ageValue, salaryValue);
+                deletedRecords.put(ageIntegerEntry.getKey(), salaryValue);
                 return;
             }
         }

@@ -2,16 +2,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-
+    static Map<Age,Integer> values = new LinkedHashMap<>();
     public static void main(String[] args) throws IOException {
-        Scanner scanner  =  new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         KDTree kdTree = null;
+        kdTree = new KDTree();
         System.out.println("KD Tree Project");
         int userInput;
         do {
@@ -21,36 +19,33 @@ public class Main {
             System.out.println("4. Exit");
             System.out.print("Enter you choice: ");
             userInput = Integer.parseInt(scanner.nextLine());
-            if(userInput == 1) {
+            if (userInput == 1) {
 //                int salary,age;
 //                System.out.print("Enter Salary: ");
 //                salary = Integer.parseInt(scanner.nextLine());
 //                System.out.print("Enter Age: ");
 //                age = Integer.parseInt(scanner.nextLine());
 //                kdTree.insert(age,salary);
-                  kdTree = new KDTree();
-                  buildKDTree(kdTree);
-            } else if(userInput == 2) {
-                if(kdTree!=null) {
+                buildKDTree(kdTree);
+            } else if (userInput == 2) {
+                if (kdTree != null) {
                     int salary, age;
                     System.out.print("Enter Salary to Delete: ");
                     salary = Integer.parseInt(scanner.nextLine());
                     System.out.print("Enter Age to Delete: ");
                     age = Integer.parseInt(scanner.nextLine());
                     kdTree = deleteUsingAgeAndSalary(kdTree, age, salary);
-                }
-                else
+                } else
                     System.out.println("KDTree does not exist! Please build before deleting");
-            } else if(userInput == 3) {
-                if(kdTree!=null) {
+            } else if (userInput == 3) {
+                if (kdTree != null) {
                     System.out.println("******DISPLAYING KD-TREE*********");
                     displayKDTree(kdTree);
-                }
-                else
+                } else
                     System.out.println("KDTree does not exist! Please build before displaying");
             }
-        } while(userInput != 4);
-
+        } while (userInput != 4);
+        scanner.close();
 //        //Insert
 //        System.out.println("******BUILDING KD-TREE*********\n");
 //        buildKDTree(kdTree);
@@ -73,35 +68,63 @@ public class Main {
 //        for (int i = 0; i < demoKey.length; i++) {
 //            kdTree.insert(demoKey[i], demoValue[i]);
 //        }
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("1. From File");
+        System.out.println("2. From Keyboard");
+        System.out.print("Enter your choice: ");
+        if(Integer.parseInt(scanner.nextLine()) == 1) {
+            //Reading input from file
+            String datafile = "data.txt";
+            BufferedReader bufferedReader = null;
+            try {
+                bufferedReader = new BufferedReader(new FileReader(datafile));
+            } catch (FileNotFoundException e) {
+                System.out.println("Data file not found " + e);
+            }
 
-        //Reading input from file
-        String datafile = "data.txt";
-        BufferedReader bufferedReader = null;
-        try {
-             bufferedReader = new BufferedReader(new FileReader(datafile));
-        } catch (FileNotFoundException e) {
-            System.out.println("Data file not found "+e);
+            String ageAndSalary = null;
+            while ((ageAndSalary = bufferedReader.readLine()) != null) {
+                int[] ageAndSalarySplit = Arrays.stream(ageAndSalary.split(",")).map(String::trim)
+                        .mapToInt(Integer::parseInt).toArray();
+
+                kdTree.insert(ageAndSalarySplit[0], ageAndSalarySplit[1]);
+            }
+
+            bufferedReader.close();
+        } else {
+            int salary,age;
+            System.out.print("Enter Salary: ");
+            salary = Integer.parseInt(scanner.nextLine());
+            System.out.print("Enter Age: ");
+            age = Integer.parseInt(scanner.nextLine());
+            kdTree.insert(age,salary);
         }
+//        scanner.close();
+    }
 
-        String ageAndSalary = null;
-        while((ageAndSalary = bufferedReader.readLine())!=null) {
-            int[] ageAndSalarySplit = Arrays.stream(ageAndSalary.split(",")).map(String::trim).mapToInt(Integer::parseInt).toArray();
-            kdTree.insert(ageAndSalarySplit[0],ageAndSalarySplit[1]);
+    public static void rebuild(KDTree kdTree) {
+        Map<Age,Integer> tempHashMap = new LinkedHashMap<>();
+        for(Map.Entry<Age,Integer> entry : values.entrySet()) {
+            if(!KDTree.deletedRecords.containsKey(entry.getKey())){
+                tempHashMap.put(entry.getKey(),entry.getValue());
+            }
         }
-
-        bufferedReader.close();
+        for(Map.Entry<Age,Integer> entry : tempHashMap.entrySet()) {
+            kdTree.insert(entry.getKey().getAge(),entry.getValue());
+        }
+        values = new LinkedHashMap<>(tempHashMap);
     }
 
     public static KDTree deleteUsingAgeAndSalary(KDTree kdTree, int age, int salary) throws IOException {
-        Map<Integer, Integer> deletedRecords = kdTree.delete(age, salary);
-        KDTree.deletedRecords=deletedRecords;
-        if(deletedRecords.size()==5) {
+        Map<Age, Integer> deletedRecords = kdTree.delete(age, salary);
+        KDTree.deletedRecords = deletedRecords;
+        if (deletedRecords.size() == 1) {
             System.out.println("Rebuilding tree");
             kdTree = new KDTree();
             KDTree.deletedRecords = deletedRecords;
-            buildKDTree(kdTree);
+            rebuild(kdTree);
             KDTree.deletedRecords = new HashMap<>();
-            System.out.println(deletedRecords);
+//            System.out.println(deletedRecords);
         }
 
         return kdTree;
