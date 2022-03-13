@@ -1,66 +1,66 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class KDTree {
 
-    public static Map<Age, Integer> deletedRecords = new HashMap<>();
+    public static ArrayList<Data> deletedRecords = new ArrayList<>();
     private Nodes rootNode;
 
     public void insert(int ageValue, int salaryValue) {
 //        if (deletedRecords != null && deletedRecords.containsKey(ageValue) && deletedRecords.get(ageValue) == salaryValue)
 //            return;
-        Age tempAge = new Age(ageValue);
-        Main.values.put(tempAge,salaryValue);
+        Data tempData = new Data(ageValue,salaryValue);
+        Main.allValues.add(tempData);
         if (rootNode == null) {
             Node temp = new Node(Constants.Salary, salaryValue, 1);
-            LeafNode tempLeafNode = new LeafNode(tempAge, salaryValue, 3);
+            LeafNode tempLeafNode = new LeafNode(tempData, 3);
             temp.setRight(tempLeafNode);
             rootNode = temp;
             //Main.values.putAll(tempLeafNode.getRecords());
             return;
         }
-        insertNodes(rootNode, tempAge, salaryValue);
+        insertNodes(rootNode, tempData);
     }
 
-    private void insertNodes(Nodes node, Age ageValue, int salaryValue) {
+    private void insertNodes(Nodes node, Data dataValue) {
         Node tempNode = (Node) node;
-        int compareValue = tempNode.getName() == Constants.Age ? ageValue.getAge() : salaryValue;
+        int compareValue = tempNode.getName() == Constants.Age ? dataValue.getAge() : dataValue.getSalary();
         Constants nextConstants = tempNode.getName() == Constants.Age ? Constants.Salary : Constants.Age;
         if (tempNode.getValue() <= compareValue) {
             if (tempNode.right.getClass() == LeafNode.class) {
-                tempNode.right = updateLeafNode((LeafNode) tempNode.right, ageValue, salaryValue,
+                tempNode.right = updateLeafNode((LeafNode) tempNode.right, dataValue,
                         nextConstants);
                 return;
             }
-            insertNodes(tempNode.right, ageValue, salaryValue);
+            insertNodes(tempNode.right, dataValue);
         } else {
             if (tempNode.left.getClass() == LeafNode.class) {
-                tempNode.left = updateLeafNode((LeafNode) tempNode.left, ageValue, salaryValue,
+                tempNode.left = updateLeafNode((LeafNode) tempNode.left, dataValue,
                         nextConstants);
                 return;
             }
-            insertNodes(tempNode.left, ageValue, salaryValue);
+            insertNodes(tempNode.left, dataValue);
         }
     }
 
-    private Nodes updateLeafNode(LeafNode node, Age ageValue, int salaryValue, Constants constants) {
-        Map<Age, Integer> records = node.getRecords();
+    private Nodes updateLeafNode(LeafNode node, Data dataValue, Constants constants) {
+        ArrayList<Data> records = node.getRecords();
         if (records.size() < 2) {
             LeafNode newNode = new LeafNode(node);
-            newNode.add(ageValue, salaryValue);
+            newNode.add(dataValue);
             //Main.values.putAll(newNode.getRecords());
             return newNode;
         }
-        records.put(ageValue, salaryValue);
+        records.add(dataValue);
 
         //Main.values.putAll(records);
 //        Comparator<Map.Entry<Age,Integer>> comparator = constants == Constants.Age ? Map.Entry.comparingByKey(new
 //        Age()) :
 //                Map.Entry.comparingByValue();
         double average = constants == Constants.Age ?
-                records.entrySet().stream().collect(Collectors.averagingInt(entry -> entry.getKey().getAge())) :
-                records.entrySet().stream().collect(Collectors.averagingInt(entry -> entry.getValue()));
+                records.stream().collect(Collectors.averagingInt(Data::getAge)) :
+                records.stream().collect(Collectors.averagingInt(Data::getSalary));
 //        Map<Age, Integer> sortedMap =
 //                records.entrySet().stream().sorted(comparator).collect(Collectors.toMap(Map.Entry::getKey,
 //                        Map.Entry::getValue,
@@ -72,12 +72,26 @@ public class KDTree {
         Node newNode = new Node(constants, medianAnswer, node.getToPrint() + 1);
         LeafNode newLeafNodeLeft = new LeafNode(node.getToPrint() + 3);
         LeafNode newLeafNodeRight = new LeafNode(node.getToPrint() + 3);
-        for (Map.Entry<Age, Integer> entry : records.entrySet()) {
-            int entryAnswer = constants == Constants.Age ? entry.getKey().getAge() : entry.getValue();
+        for (Data entry : records) {
+            int entryAnswer = constants == Constants.Age ? entry.getAge() : entry.getSalary();
             if (entryAnswer < medianAnswer) {
-                newLeafNodeLeft.add(entry.getKey(), entry.getValue());
+                newLeafNodeLeft.add(entry);
             } else {
-                newLeafNodeRight.add(entry.getKey(), entry.getValue());
+                newLeafNodeRight.add(entry);
+            }
+        }
+        if(newLeafNodeLeft.getRecords().size() > 2 || newLeafNodeRight.getRecords().size()>2) {
+            average = (int) average + new Random().nextInt(10);
+            newNode = new Node(constants, medianAnswer, node.getToPrint() + 1);
+            newLeafNodeLeft = new LeafNode(node.getToPrint() + 3);
+            newLeafNodeRight = new LeafNode(node.getToPrint() + 3);
+            for (Data entry : records) {
+                int entryAnswer = constants == Constants.Age ? entry.getAge() : entry.getSalary();
+                if (entryAnswer < medianAnswer) {
+                    newLeafNodeLeft.add(entry);
+                } else {
+                    newLeafNodeRight.add(entry);
+                }
             }
         }
         newNode.left = newLeafNodeLeft;
@@ -86,18 +100,23 @@ public class KDTree {
     }
 
 
-    public Map<Age, Integer> delete(int ageValue, int salaryValue) {
+    public Data delete(int ageValue, int salaryValue) {
 //        deletedRecords = new HashMap<>();
-        deleteValue(rootNode, ageValue, salaryValue);
-        if (deletedRecords == null || deletedRecords.size() == 0)
+        if (deleteValue(rootNode, ageValue, salaryValue)) {
+            return new Data(ageValue,salaryValue);
+        } else {
             System.out.println("NOT FOUND\n");
-        return deletedRecords;
+            return null;
+        }
+//        if (deletedRecords == null || deletedRecords.size() == 0)
+//            System.out.println("NOT FOUND\n");
+//        return deletedRecords;
     }
 
-    private void deleteValue(Nodes node, int ageValue, int salaryValue) {
+    private boolean deleteValue(Nodes node, int ageValue, int salaryValue) {
 
         if (rootNode == null) {
-            return;
+            return false;
         }
 
         Node tempNode = (Node) node;
@@ -105,31 +124,31 @@ public class KDTree {
         if (tempNode.getValue() <= compareValue) {
             if (tempNode.right.getClass() == LeafNode.class) {
                 LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.right);
-                checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
-                return;
+                return checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
             }
-            deleteValue(tempNode.right, ageValue, salaryValue);
+            return deleteValue(tempNode.right, ageValue, salaryValue);
         } else {
             if (tempNode.left.getClass() == LeafNode.class) {
                 LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.left);
-                checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
-                return;
+                return checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
             }
-            deleteValue(tempNode.left, ageValue, salaryValue);
+            return deleteValue(tempNode.left, ageValue, salaryValue);
         }
 
+//        return false;
     }
 
-    public void checkValueForDeletion(LeafNode node, int ageValue, int salaryValue) {
+    public boolean checkValueForDeletion(LeafNode node, int ageValue, int salaryValue) {
         //Ashwin
         //Map<Age, Integer> records = node.getRecords();
-        for (Map.Entry<Age, Integer> ageIntegerEntry : node.getRecords().entrySet()) {
-            if (ageIntegerEntry.getKey().getAge() == ageValue && ageIntegerEntry.getValue() == salaryValue) {
+        for (Data ageIntegerEntry : node.getRecords()) {
+            if (ageIntegerEntry.getAge() == ageValue && ageIntegerEntry.getSalary() == salaryValue) {
                 System.out.println("Found and deleted\n");
-                deletedRecords.put(ageIntegerEntry.getKey(), salaryValue);
-                return;
+                deletedRecords.add(ageIntegerEntry);
+                return true;
             }
         }
+        return false;
     }
 
     public Nodes getRootNode() {

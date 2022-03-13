@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class Main {
-    static Map<Age,Integer> values = new LinkedHashMap<>();
+    static ArrayList<Data> allValues = new ArrayList<>();
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
         KDTree kdTree = null;
@@ -102,29 +102,45 @@ public class Main {
 //        scanner.close();
     }
 
-    public static void rebuild(KDTree kdTree) {
-        Map<Age,Integer> tempHashMap = new LinkedHashMap<>();
-        for(Map.Entry<Age,Integer> entry : values.entrySet()) {
-            if(!KDTree.deletedRecords.containsKey(entry.getKey())){
-                tempHashMap.put(entry.getKey(),entry.getValue());
+    public static void rebuild(KDTree kdTree,ArrayList<Data> deletedList) {
+        ArrayList<Data> tempList = new ArrayList<>();
+//        if(allValues.removeAll(deletedList)) {
+//            for(Data entry : allValues) {
+//                kdTree.insert(entry.getAge(),entry.getSalary());
+//            }
+//        }
+        for(Data data: allValues) {
+            if(!deletedList.contains(data)) {
+                tempList.add(data);
+                //kdTree.insert(data.getAge(), data.getSalary());
             }
         }
-        for(Map.Entry<Age,Integer> entry : tempHashMap.entrySet()) {
-            kdTree.insert(entry.getKey().getAge(),entry.getValue());
+        allValues = new ArrayList<>();
+        for(Data data: tempList) {
+            kdTree.insert(data.getAge(), data.getSalary());
         }
-        values = new LinkedHashMap<>(tempHashMap);
+//        Map<Data,Integer> tempHashMap = new LinkedHashMap<>();
+//        for(Map.Entry<Data,Integer> entry : values.entrySet()) {
+//            if(!KDTree.deletedRecords.containsKey(entry.getKey())){
+//                tempHashMap.put(entry.getKey(),entry.getValue());
+//            }
+//        }
+//        values = new LinkedHashMap<>(tempHashMap);
     }
 
     public static KDTree deleteUsingAgeAndSalary(KDTree kdTree, int age, int salary) throws IOException {
-        Map<Age, Integer> deletedRecords = kdTree.delete(age, salary);
-        KDTree.deletedRecords = deletedRecords;
-        if (deletedRecords.size() == 1) {
-            System.out.println("Rebuilding tree");
-            kdTree = new KDTree();
-            KDTree.deletedRecords = deletedRecords;
-            rebuild(kdTree);
-            KDTree.deletedRecords = new HashMap<>();
+        Data deletedRecords = kdTree.delete(age, salary);
+        if(deletedRecords != null) {
+//            KDTree.deletedRecords.add(deletedRecords);
+            ArrayList<Data> tempList = new ArrayList<>(KDTree.deletedRecords);
+            if (KDTree.deletedRecords.size() == 5) {
+                System.out.println("Rebuilding tree");
+                kdTree = new KDTree();
+//            KDTree.deletedRecords = new ArrayList<>(tempList);
+                rebuild(kdTree,tempList);
+            KDTree.deletedRecords = new ArrayList<>();
 //            System.out.println(deletedRecords);
+            }
         }
 
         return kdTree;

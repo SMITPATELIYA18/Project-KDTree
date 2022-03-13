@@ -1,14 +1,15 @@
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class LeafNode extends Nodes {
 
 
-    private Map<Age, Integer> records = new LinkedHashMap<>(2);
+    //private Map<Data, Integer> records = new LinkedHashMap<>(2);
+    private ArrayList<Data> records  = new ArrayList<>();
 
-    LeafNode(Age ageValue, int salaryValue, int toPrint) {
-        records.put(ageValue, salaryValue);
+    LeafNode(Data dataValue, int toPrint) {
+        records.add(dataValue);
         this.toPrint = toPrint;
 
     }
@@ -18,16 +19,16 @@ public class LeafNode extends Nodes {
     }
 
     LeafNode(LeafNode node) {
-        this.records = new LinkedHashMap<>(node.getRecords());
+        this.records = new ArrayList<>(node.getRecords());
         this.toPrint = node.toPrint;
 
     }
 
-    void add(Age ageValue, int salaryValue) {
-        records.put(ageValue, salaryValue);
+    void add(Data dataValue) {
+        records.add(dataValue);
     }
 
-    public Map<Age, Integer> getRecords() {
+    public ArrayList<Data> getRecords() {
         return records;
 
     }
@@ -35,20 +36,32 @@ public class LeafNode extends Nodes {
     @Override
     public String toString() {
 
-        Map<Age, Integer> recordsToDisplay = new HashMap<>();
-        Map<Age, Integer> deletedRecords = KDTree.deletedRecords;
-        if(!deletedRecords.isEmpty()) {
-            for (Map.Entry<Age, Integer> deletedAgeIntegerEntry : this.records.entrySet()) {
-                if(!deletedRecords.containsKey(deletedAgeIntegerEntry.getKey())) {
-                    recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
+        ArrayList<Data> recordsToDisplay = new ArrayList<>();
+        ArrayList<Data> forDuplicate = new ArrayList<>(KDTree.deletedRecords);
+        if(!forDuplicate.isEmpty()) {
+            for (Data dataDuplicate : forDuplicate) {
+                if(this.records.contains(dataDuplicate)) {
+                    int occu=0;
+                    for(Data data: this.records) {
+                        if(data.equals(dataDuplicate)) {
+                            occu++;
+                            if(occu != 1) {
+                                recordsToDisplay.add(data);
+                            }
+                        } else {
+                            recordsToDisplay.add(data);
+                        }
+                    }
+                } else {
+                    recordsToDisplay.addAll(this.records);
                 }
 //                for (Map.Entry<Age, Integer> recordToDisplayAgeIntegerEntry : deletedRecords.entrySet()) {
-//                    if(recordToDisplayAgeIntegerEntry.getKey().getAge() != deletedAgeIntegerEntry.getKey().getAge()) {
+//                    if(recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge()) {
 //                    } else {
-//                        System.out.println(deletedAgeIntegerEntry.getKey()+" "+recordToDisplayAgeIntegerEntry.getKey());
-//                        System.out.println(deletedAgeIntegerEntry.getKey().hashCode() + " "+ recordToDisplayAgeIntegerEntry.getKey().hashCode());
-//                        if(recordToDisplayAgeIntegerEntry.getValue() != deletedAgeIntegerEntry.getValue()) {
-//                            recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
+//                        System.out.println(data.getKey()+" "+recordToDisplayAgeIntegerEntry.getKey());
+//                        System.out.println(data.getKey().hashCode() + " "+ recordToDisplayAgeIntegerEntry.getKey().hashCode());
+//                        if(recordToDisplayAgeIntegerEntry.getValue() != data.getValue()) {
+//                            recordsToDisplay.put(data.getKey(), data.getValue());
 //                        }
 //                    }
 //
@@ -57,13 +70,13 @@ public class LeafNode extends Nodes {
 //                    //30,70
 //
 //                    //30,60
-////                if (recordToDisplayAgeIntegerEntry.getKey().getAge() != deletedAgeIntegerEntry.getKey().getAge() && deletedAgeIntegerEntry.getValue() != recordToDisplayAgeIntegerEntry.getValue())
+////                if (recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge() && data.getValue() != recordToDisplayAgeIntegerEntry.getValue())
 ////                    //recordsToDisplay.remove(recordToDisplayAgeIntegerEntry.getKey());
-////                    recordsToDisplay.put(deletedAgeIntegerEntry.getKey(), deletedAgeIntegerEntry.getValue());
+////                    recordsToDisplay.put(data.getKey(), data.getValue());
 //                }
             }
         } else {
-            recordsToDisplay = new HashMap<>(this.records);
+            recordsToDisplay = new ArrayList<Data>(this.records);
         }
 
         return "\n" + getSpacesToDisplay(0) + "LeafNode{" +
