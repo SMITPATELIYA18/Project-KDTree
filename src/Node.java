@@ -1,3 +1,6 @@
+/**
+ * Node class which takes up a constant either Age or Salary
+ */
 public class Node extends Nodes {
     private final Constants name;
     private final int value;

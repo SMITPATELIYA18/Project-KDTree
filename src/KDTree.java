@@ -1,23 +1,37 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * Tree class with insert, delete operations
+ */
 public class KDTree {
 
     public static ArrayList<Data> deletedRecords = new ArrayList<>();
     private Nodes rootNode;
 
     public void insert(int ageValue, int salaryValue) {
-//        if (deletedRecords != null && deletedRecords.containsKey(ageValue) && deletedRecords.get(ageValue) == salaryValue)
-//            return;
         Data tempData = new Data(ageValue,salaryValue);
-        Main.allValues.add(tempData);
+
+        if (deletedRecords != null)
+        {
+            Iterator<Data> iterator = deletedRecords.iterator();
+            while (iterator.hasNext()) {
+                Data data = iterator.next();
+                if (data.getAge()==ageValue && data.getSalary()==salaryValue) {
+                    iterator.remove();
+                    return;
+                }
+            }
+        }
+        if(!Main.allValues.contains(tempData))
+            Main.allValues.add(tempData);
         if (rootNode == null) {
             Node temp = new Node(Constants.Salary, salaryValue, 1);
             LeafNode tempLeafNode = new LeafNode(tempData, 3);
             temp.setRight(tempLeafNode);
             rootNode = temp;
-            //Main.values.putAll(tempLeafNode.getRecords());
             return;
         }
         insertNodes(rootNode, tempData);
@@ -49,25 +63,13 @@ public class KDTree {
         if (records.size() < 2) {
             LeafNode newNode = new LeafNode(node);
             newNode.add(dataValue);
-            //Main.values.putAll(newNode.getRecords());
             return newNode;
         }
         records.add(dataValue);
 
-        //Main.values.putAll(records);
-//        Comparator<Map.Entry<Age,Integer>> comparator = constants == Constants.Age ? Map.Entry.comparingByKey(new
-//        Age()) :
-//                Map.Entry.comparingByValue();
         double average = constants == Constants.Age ?
                 records.stream().collect(Collectors.averagingInt(Data::getAge)) :
                 records.stream().collect(Collectors.averagingInt(Data::getSalary));
-//        Map<Age, Integer> sortedMap =
-//                records.entrySet().stream().sorted(comparator).collect(Collectors.toMap(Map.Entry::getKey,
-//                        Map.Entry::getValue,
-//                        (e1,
-//                         e2) -> e1, LinkedHashMap::new));
-        //Map.Entry<Age, Integer> medianValue = sortedMap.entrySet().stream().skip(1).findFirst().get();
-        //int medianAnswer = constants ==Constants.Age ? medianValue.getKey().getAge() : medianValue.getValue();
         int medianAnswer = (int) average;
         Node newNode = new Node(constants, medianAnswer, node.getToPrint() + 1);
         LeafNode newLeafNodeLeft = new LeafNode(node.getToPrint() + 3);
@@ -101,16 +103,13 @@ public class KDTree {
 
 
     public Data delete(int ageValue, int salaryValue) {
-//        deletedRecords = new HashMap<>();
         if (deleteValue(rootNode, ageValue, salaryValue)) {
             return new Data(ageValue,salaryValue);
         } else {
             System.out.println("NOT FOUND\n");
             return null;
         }
-//        if (deletedRecords == null || deletedRecords.size() == 0)
-//            System.out.println("NOT FOUND\n");
-//        return deletedRecords;
+
     }
 
     private boolean deleteValue(Nodes node, int ageValue, int salaryValue) {
@@ -134,13 +133,10 @@ public class KDTree {
             }
             return deleteValue(tempNode.left, ageValue, salaryValue);
         }
-
-//        return false;
     }
 
     public boolean checkValueForDeletion(LeafNode node, int ageValue, int salaryValue) {
-        //Ashwin
-        //Map<Age, Integer> records = node.getRecords();
+
         for (Data ageIntegerEntry : node.getRecords()) {
             if (ageIntegerEntry.getAge() == ageValue && ageIntegerEntry.getSalary() == salaryValue) {
                 System.out.println("Found and deleted\n");
