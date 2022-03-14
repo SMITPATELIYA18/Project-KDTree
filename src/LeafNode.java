@@ -39,42 +39,51 @@ public class LeafNode extends Nodes {
         ArrayList<Data> recordsToDisplay = new ArrayList<>();
         ArrayList<Data> forDuplicate = new ArrayList<>(KDTree.deletedRecords);
         if(!forDuplicate.isEmpty()) {
-            for (Data dataDuplicate : forDuplicate) {
-                if(this.records.contains(dataDuplicate)) {
-                    int occu=0;
-                    for(Data data: this.records) {
-                        if(data.equals(dataDuplicate)) {
-                            occu++;
-                            if(occu != 1) {
-                                recordsToDisplay.add(data);
-                            }
-                        } else {
-                            recordsToDisplay.add(data);
-                        }
-                    }
-                } else {
-                    recordsToDisplay.addAll(this.records);
-                }
-//                for (Map.Entry<Age, Integer> recordToDisplayAgeIntegerEntry : deletedRecords.entrySet()) {
-//                    if(recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge()) {
-//                    } else {
-//                        System.out.println(data.getKey()+" "+recordToDisplayAgeIntegerEntry.getKey());
-//                        System.out.println(data.getKey().hashCode() + " "+ recordToDisplayAgeIntegerEntry.getKey().hashCode());
-//                        if(recordToDisplayAgeIntegerEntry.getValue() != data.getValue()) {
-//                            recordsToDisplay.put(data.getKey(), data.getValue());
+//            for (Data dataDuplicate : forDuplicate) {
+//                if(this.records.contains(dataDuplicate)) {
+//                    int occu=0;
+//                    for(Data data: this.records) {
+//                        if(data.equals(dataDuplicate)) {
+//                            occu++;
+//                            if(occu != 1) {
+//                                recordsToDisplay.add(data);
+//                            }
+//                        } else {
+//                            recordsToDisplay.add(data);
 //                        }
 //                    }
-//
-//                    //10,60
-//                    //30,60
-//                    //30,70
-//
-//                    //30,60
-////                if (recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge() && data.getValue() != recordToDisplayAgeIntegerEntry.getValue())
-////                    //recordsToDisplay.remove(recordToDisplayAgeIntegerEntry.getKey());
-////                    recordsToDisplay.put(data.getKey(), data.getValue());
+//                } else {
+//                    recordsToDisplay.addAll(this.records);
 //                }
-            }
+////                for (Map.Entry<Age, Integer> recordToDisplayAgeIntegerEntry : deletedRecords.entrySet()) {
+////                    if(recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge()) {
+////                    } else {
+////                        System.out.println(data.getKey()+" "+recordToDisplayAgeIntegerEntry.getKey());
+////                        System.out.println(data.getKey().hashCode() + " "+ recordToDisplayAgeIntegerEntry.getKey().hashCode());
+////                        if(recordToDisplayAgeIntegerEntry.getValue() != data.getValue()) {
+////                            recordsToDisplay.put(data.getKey(), data.getValue());
+////                        }
+////                    }
+////
+////                    //10,60
+////                    //30,60
+////                    //30,70
+////
+////                    //30,60
+//////                if (recordToDisplayAgeIntegerEntry.getKey().getAge() != data.getKey().getAge() && data.getValue() != recordToDisplayAgeIntegerEntry.getValue())
+//////                    //recordsToDisplay.remove(recordToDisplayAgeIntegerEntry.getKey());
+//////                    recordsToDisplay.put(data.getKey(), data.getValue());
+////                }
+//            }
+
+
+                for (Data record : this.records) {
+                    if(!forDuplicate.contains(record))
+                    {
+                        recordsToDisplay.add(record);
+                    }
+                }
+
         } else {
             recordsToDisplay = new ArrayList<Data>(this.records);
         }

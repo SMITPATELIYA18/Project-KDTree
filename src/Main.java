@@ -13,7 +13,7 @@ public class Main {
         System.out.println("KD Tree Project");
         int userInput;
         do {
-            System.out.println("1. Build KD tree from file");
+            System.out.println("1. Build KD tree");
             System.out.println("2. Delete Record");
             System.out.println("3. Print KD Tree");
             System.out.println("4. Exit");
