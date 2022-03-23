@@ -85,6 +85,9 @@ public class Main {
         for(Data data: allValues) {
             if(!deletedList.contains(data)) {
                 tempList.add(data);
+            } else {
+                KDTree.deletedRecords.remove(data);
+                deletedList.remove(data);
             }
         }
         allValues = new ArrayList<>();

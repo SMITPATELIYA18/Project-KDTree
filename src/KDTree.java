@@ -14,7 +14,7 @@ public class KDTree {
     public void insert(int ageValue, int salaryValue) {
         Data tempData = new Data(ageValue,salaryValue);
 
-        if (deletedRecords != null)
+        if (!deletedRecords.isEmpty())
         {
             Iterator<Data> iterator = deletedRecords.iterator();
             while (iterator.hasNext()) {
@@ -25,7 +25,7 @@ public class KDTree {
                 }
             }
         }
-        if(!Main.allValues.contains(tempData))
+//        if(!Main.allValues.contains(tempData))
             Main.allValues.add(tempData);
         if (rootNode == null) {
             Node temp = new Node(Constants.Salary, salaryValue, 1);
@@ -122,27 +122,41 @@ public class KDTree {
         int compareValue = tempNode.getName() == Constants.Age ? ageValue : salaryValue;
         if (tempNode.getValue() <= compareValue) {
             if (tempNode.right.getClass() == LeafNode.class) {
-                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.right);
-                return checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
+//                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.right);
+                return checkValueForDeletion((LeafNode) tempNode.right, ageValue, salaryValue);
             }
             return deleteValue(tempNode.right, ageValue, salaryValue);
         } else {
             if (tempNode.left.getClass() == LeafNode.class) {
-                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.left);
-                return checkValueForDeletion(leafNodeToCheck, ageValue, salaryValue);
+//                LeafNode leafNodeToCheck = new LeafNode((LeafNode) tempNode.left);
+                return checkValueForDeletion((LeafNode) tempNode.left, ageValue, salaryValue);
             }
             return deleteValue(tempNode.left, ageValue, salaryValue);
         }
     }
 
     public boolean checkValueForDeletion(LeafNode node, int ageValue, int salaryValue) {
-
+        boolean deleted = false;
         for (Data ageIntegerEntry : node.getRecords()) {
             if (ageIntegerEntry.getAge() == ageValue && ageIntegerEntry.getSalary() == salaryValue) {
                 System.out.println("Found and deleted\n");
                 deletedRecords.add(ageIntegerEntry);
-                return true;
+                deleted = true;
+                break;
             }
+        }
+        if(deleted) {
+            Iterator<Data> records = node.getRecords().iterator();
+            while (records.hasNext()) {
+                Data deletedData = records.next();
+                if (deletedData.equals(new Data(ageValue,salaryValue))) {
+                    node.getRecords().remove(deletedData);
+//                    records.remove();
+//                    System.out.println("Deleted");
+                    break;
+                }
+            }
+            return true;
         }
         return false;
     }
